@@ -54,7 +54,7 @@ def HasRankAndShape:
 // unless there are less transform by switching it to custom layout.
 
 def replaceONNXConvPatternWithLayout : Pat<
-  (ONNXConvOp:$res $x, $w, $b, $auto_pad, $dilations, $group, $kernel_shape, $pad, $strides),
+  (ONNXConvOp:$res $x, $w, $b, $auto_pad, $dilations, $identity, $group, $kernel_shape, $pad, $strides),
   (ONNXLayoutTransformOp
     (ONNXConvOp
       // Output type with layout
@@ -63,7 +63,7 @@ def replaceONNXConvPatternWithLayout : Pat<
       (ONNXLayoutTransformOp $x, (NHWC4LayoutAttr)),
       (ONNXLayoutTransformOp $w, (KCMN4C4KLayoutAttr)),
       // Remaining arguments unchanged.
-      $b, $auto_pad, $dilations, $group, $kernel_shape, $pad, $strides,
+      $b, $auto_pad, $dilations, $identity, $group, $kernel_shape, $pad, $strides,
       //(tensorTypeWithONNXTensorEncoding $res, (NHWC4LayoutAttr))
       //(returnType $res)
       (returnType (tensorTypeWithONNXTensorEncoding $res, (NHWC4LayoutAttr)))

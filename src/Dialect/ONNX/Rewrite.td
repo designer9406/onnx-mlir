@@ -294,7 +294,7 @@ def NormalizeAddPattern: Pat<
 def FuseAddConvNullBiasPattern: Pat<
   (ONNXAddOp:$res
     (ONNXConvOp
-       $x, $w, $b, $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+       $x, $w, $b, $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
     (ONNXConstantOp:$y $_, $denseAttr, $_, $_, $_, $_, $_, $_)),
   (ONNXConvOp
      $x, $w,
@@ -303,7 +303,7 @@ def FuseAddConvNullBiasPattern: Pat<
         $y,
         (createArrayAttrOfOneToRankOf $y)),
      // unchanged operands and attributes.
-     $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+     $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
   [(HasNoneType $b),
    (AttributeIsNotNull:$denseAttr),
    (AllDimsFromAxisToEndAre<1, 1>:$y),
@@ -313,7 +313,7 @@ def FuseAddConvNullBiasPattern: Pat<
 def FuseAddConvPattern: Pat<
   (ONNXAddOp:$res
     (ONNXConvOp
-       $x, $w, $b, $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+       $x, $w, $b, $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
     (ONNXConstantOp:$y $_, $denseAttr, $_, $_, $_, $_, $_, $_)),
   (ONNXConvOp
      $x, $w,
@@ -324,7 +324,7 @@ def FuseAddConvPattern: Pat<
            $y,
            (createArrayAttrOfOneToRankOf $y))),
      // unchanged operands and attributes.
-     $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+     $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
   [(NotNoneType $b),
    (AttributeIsNotNull:$denseAttr),
    (AllDimsFromAxisToEndAre<1, 1>:$y),
@@ -356,14 +356,14 @@ def NormalizeMulPattern: Pat<
 def FuseMulConvNullBiasPattern: Pat<
   (ONNXMulOp:$res
     (ONNXConvOp
-       $x, $w, $b, $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+       $x, $w, $b, $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
     (ONNXConstantOp:$y $_, $denseAttr, $_, $_, $_, $_, $_, $_)),
   (ONNXConvOp
      $x,
      // new_w
      (ONNXMulOp $w, (ONNXUnsqueezeV11Op $y, (createArrayAttrOf(getRankOf $y)))),
      // unchanged operands and attributes.
-     $b, $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+     $b, $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
   [(HasNoneType $b),
    (IsDenseElementsAttr:$denseAttr),
    (IsFromONNXConstantOpWithDenseElementsAttr:$w),    
@@ -720,7 +720,7 @@ def RemoveUnsqueezeV11CastSqueezeV11Pattern:  Pat<
 def FuseBatchNormInferenceModeConvPattern: Pat<
   (ONNXBatchNormalizationInferenceModeOp:$res
     (ONNXConvOp $x, $w, $b,
-                $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+                $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
     $scale, $B, $mean, $var, $epsilon, $momentum),
   (ONNXConvOp
      $x,
@@ -743,7 +743,7 @@ def FuseBatchNormInferenceModeConvPattern: Pat<
            $coefficientW,
            (subtractOrNeg $res, $b, $mean))),
 
-     $auto_pad, $dilation, $group, $kernel_shape, $pads, $strides),
+     $auto_pad, $dilation, $identity, $group, $kernel_shape, $pads, $strides),
      [], (addBenefit 1)
 >;
 

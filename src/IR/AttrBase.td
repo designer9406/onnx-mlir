@@ -21,8 +21,7 @@ class BaseLayoutAttr<Dialect dialect, string name, list<Trait> traits = []>
   let mnemonic = "layout";
 }
 
-def LayoutAttr : Attr<
-  CPred<"$_self.isa<::mlir::Attribute>() ">,
+def LayoutAttr : Attr<CPred<"$_self.isa<::mlir::Attribute>() ">,
         //"&& $_self.cast<Attribute>().getMnemonic().equal(\"layout\")">,
   "layout attribute"
 >;

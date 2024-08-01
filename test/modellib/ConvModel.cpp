@@ -84,16 +84,17 @@ bool Conv2DLibBuilder::build() {
   auto bVal = builder.create<ONNXNoneOp>(loc).getResult();
 
   auto dilations = builder.getI64ArrayAttr({dilation, dilation});
+  auto identity = IntegerAttr::get(builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 1, /*isSigned=*/true));  // by among
   auto kernel_shape = builder.getI64ArrayAttr({kH, kW});
   auto pads = builder.getI64ArrayAttr({pHBegin, pWBegin, pHEnd, pWEnd});
   auto strides = builder.getI64ArrayAttr({stride, stride});
-  auto group = IntegerAttr::get(builder.getIntegerType(64, /*isSigned=*/true),
-      APInt(64, 1, /*isSigned=*/true));
+  auto group = IntegerAttr::get(builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 1, /*isSigned=*/true));
   auto convOp = builder.create<ONNXConvOp>(loc,
       /*Y=*/yType,
       /*X=*/xVal, /*W=*/wVal, /*B=*/bVal,
       /*auto_pad=*/builder.getStringAttr(getAutoPadName(autoPad)),
       /*dilations=*/dilations,
+      /*identity=*/identity,
       /*group=*/group,
       /*kernel_shape=*/kernel_shape, /*pads=*/pads,
       /*strides=*/strides);
@@ -124,10 +125,8 @@ bool Conv2DLibBuilder::build() {
 bool Conv2DLibBuilder::prepareInputs(float dataRangeLB, float dataRangeUB) {
   constexpr int num = 2;
   OMTensor* list[num];
-  list[0] = omTensorCreateWithRandomData<float>(
-      {N, CIn, H, W}, dataRangeLB, dataRangeUB);
-  list[1] = omTensorCreateWithRandomData<float>(
-      {COut, CIn, kH, kW}, dataRangeLB, dataRangeUB);
+  list[0] = omTensorCreateWithRandomData<float>({N, CIn, H, W}, dataRangeLB, dataRangeUB);
+  list[1] = omTensorCreateWithRandomData<float>({COut, CIn, kH, kW}, dataRangeLB, dataRangeUB);
   inputs = omTensorListCreate(list, num);
   return inputs && list[0] && list[1];
 }
