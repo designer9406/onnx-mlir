@@ -62,13 +62,13 @@ bool GemmLibBuilder::build() {
 
   FloatAttr alphaAttr = FloatAttr::get(builder.getF32Type(), alphaVal);
   FloatAttr betaAttr = FloatAttr::get(builder.getF32Type(), betaVal);
-  IntegerAttr aTransAttr =
-      IntegerAttr::get(builder.getIntegerType(64, true), aTrans);
-  IntegerAttr bTransAttr =
-      IntegerAttr::get(builder.getIntegerType(64, true), bTrans);
+  IntegerAttr aTransAttr = IntegerAttr::get(builder.getIntegerType(64, true), aTrans);
+  IntegerAttr bTransAttr = IntegerAttr::get(builder.getIntegerType(64, true), bTrans);
+  IntegerAttr numslice = IntegerAttr::get(builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 1, /*isSigned=*/true));  // by among
+  IntegerAttr sliceidx= IntegerAttr::get(builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true));  // by among
   auto gemmOp = builder.create<ONNXGemmOp>(loc,
       /*Y=*/yType, /*A=*/aVal, /*B=*/bVal, /*C=*/cVal, alphaAttr, betaAttr,
-      aTransAttr, bTransAttr);
+      aTransAttr, bTransAttr, numslice, sliceidx);
   gemmOp.getResult().setType(yType);
 
   llvm::SmallVector<Value, 1> results = {gemmOp.getResult()};

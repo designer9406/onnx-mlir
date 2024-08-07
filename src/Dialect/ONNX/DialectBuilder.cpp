@@ -121,13 +121,12 @@ Value OnnxBuilder::matmul(Type Y, Value A, Value B, bool useGemm) const {
   auto bValue = toTensor(B);
   if (canUseGemm)
     return createOpAndInferShapes<ONNXGemmOp>(Y, aValue, bValue, none(),
-        /*alpha=*/b().getF32FloatAttr(1.0), /*beta=*/b().getF32FloatAttr(1.0),
-        /*transA=*/
-        IntegerAttr::get(b().getIntegerType(64, /*isSigned=*/true),
-            APInt(64, 0, /*isSigned=*/true)),
-        /*transB=*/
-        IntegerAttr::get(b().getIntegerType(64, /*isSigned=*/true),
-            APInt(64, 0, /*isSigned=*/true)));
+        /*alpha=*/b().getF32FloatAttr(1.0),
+        /*beta=*/b().getF32FloatAttr(1.0),
+        /*transA=*/ IntegerAttr::get(b().getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true)),
+        /*transB=*/ IntegerAttr::get(b().getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true)),
+        /*numslice=*/ IntegerAttr::get(b().getIntegerType(64, /*isSigned=*/true), APInt(64, 1, /*isSigned=*/true)),
+        /*sliceidx=*/ IntegerAttr::get(b().getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true)));
   return createOpAndInferShapes<ONNXMatMulOp>(toTensor(Y), aValue, bValue);
 }
 

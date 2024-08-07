@@ -2729,7 +2729,9 @@ def ONNXGemmOp:ONNX_Op<"Gemm",
     DefaultValuedAttr<F32Attr, "1.0">:$alpha,
     DefaultValuedAttr<F32Attr, "1.0">:$beta,
     DefaultValuedAttr<SI64Attr, "0">:$transA,
-    DefaultValuedAttr<SI64Attr, "0">:$transB);
+    DefaultValuedAttr<SI64Attr, "0">:$transB,
+    OptionalAttr<SI64Attr>:$num_slice,
+    OptionalAttr<SI64Attr>:$slice_idx);
   let results = (outs AnyTypeOf<[TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>, TensorOf<[UI32]>, TensorOf<[UI64]>, TensorOf<[I32]>, TensorOf<[I64]>, TensorOf<[BF16]>]>:$Y);
   let extraClassDeclaration = [{
     static int getNumberOfOperands() {

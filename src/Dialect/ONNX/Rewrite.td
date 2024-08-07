@@ -254,6 +254,8 @@ def GemmAlpha : NativeCodeCall<"$_builder.getF32FloatAttr(1.0)">;
 def GemmBeta : NativeCodeCall<"$_builder.getF32FloatAttr(1.0)">;
 def GemmTransA : NativeCodeCall<"IntegerAttr::get($_builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true))">;
 def GemmTransB : NativeCodeCall<"IntegerAttr::get($_builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true))">;
+def GemmNumSlice : NativeCodeCall<"IntegerAttr::get($_builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 1, /*isSigned=*/true))">;
+def GemmSliceIdx : NativeCodeCall<"IntegerAttr::get($_builder.getIntegerType(64, /*isSigned=*/true), APInt(64, 0, /*isSigned=*/true))">;
 
 //===----------------------------------------------------------------------===//
 // Canonicalization for ONNXAddOp
@@ -261,12 +263,12 @@ def GemmTransB : NativeCodeCall<"IntegerAttr::get($_builder.getIntegerType(64, /
 
 // onnx.add(onnx.matmul(%X, %Y), %Z) = onnx.Gemm(%X, %Y, %Z)
 def MulAddToGemmOptPattern : Pat<(ONNXAddOp (ONNXMatMulOp:$res $m1, $m2), $m3),
-                                 (ONNXGemmOp $m1, $m2, $m3, (GemmAlpha), (GemmBeta), (GemmTransA), (GemmTransB)),
+                                 (ONNXGemmOp $m1, $m2, $m3, (GemmAlpha), (GemmBeta), (GemmTransA), (GemmTransB), (GemmNumSlice), (GemmSliceIdx)),
                                  [(HasOneUse $res), (HasRankOf<2> $m1), (HasRankOf<2> $m2)]>;
 
 // onnx.add(onnx.Gemm(%X, %Y, None), %Z) = onnx.Gemm(%X, %Y, %Z) {beta=1.0}
-def FuseGemmFollowedByAddition : Pat<(ONNXAddOp (ONNXGemmOp:$res $m1, $m2, $none, $alpha, $beta, $transA, $transB), $bias),
-                                     (ONNXGemmOp $m1, $m2, $bias, $alpha, (GemmBeta), $transA, $transB),
+def FuseGemmFollowedByAddition : Pat<(ONNXAddOp (ONNXGemmOp:$res $m1, $m2, $none, $alpha, $beta, $transA, $transB, $numslice, $sliceidx), $bias),
+                                     (ONNXGemmOp $m1, $m2, $bias, $alpha, (GemmBeta), $transA, $transB, $numslice, $sliceidx),
                                      [(HasOneUse $res), (HasNoneType $none)]>;
 
 //===----------------------------------------------------------------------===//
